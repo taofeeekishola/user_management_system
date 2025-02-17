@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from './entity/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { randomUUID } from 'crypto';
+import { UpdateStatus } from './dto/update-status.dto';
 
 @Injectable()
 export class UserService {
@@ -21,6 +22,19 @@ export class UserService {
         
 
         return newUser;
+    }
+
+    async updateOne(id: string, updateStatusDto: UpdateStatus){
+        const user = this.users.find((user)=> user.id === id)
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        user.status = updateStatusDto.status;
+
+        return user
+        
     }
 
     async deleteOne(id: string){
