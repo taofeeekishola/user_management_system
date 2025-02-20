@@ -8,8 +8,8 @@ import { UpdateStatus } from './dto/update-status.dto';
 export class UserService {
     private users: User[] = [];
 
-    async findAll(){
-        return this.users
+    async findAll(limit){
+        return limit ? this.users.slice(0,limit) : this.users;
     }
 
     async findOne(id: string){

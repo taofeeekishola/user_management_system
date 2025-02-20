@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotAcceptableException, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotAcceptableException, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateStatus } from './dto/update-status.dto';
@@ -13,8 +13,8 @@ export class UserController {
     }
     
     @Get()
-    findAll(){
-        return this.userService.findAll()
+    findAll(@Query('limit', new ParseIntPipe({optional:true})) limit: number){ //limiting the number of users returned by the user and making it optional
+        return this.userService.findAll(limit)
     }
 
     @Get(':id')
