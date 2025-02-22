@@ -8,14 +8,7 @@ import { UpdateStatus } from './dto/update-status.dto';
 export class UserService {
     private users: User[] = [];
 
-    async findAll(limit){
-        return limit ? this.users.slice(0,limit) : this.users;
-    }
-
-    async findOne(id: string){
-        return this.users.find((user) => user.id === id)
-    }
-
+    //creating a user
     async createUser(createUserDto: CreateUserDto){
         const newUser = {...createUserDto, id: randomUUID()}
         this.users.push(newUser);
@@ -24,6 +17,29 @@ export class UserService {
         return newUser;
     }
 
+    //getting all the users
+    async findAll(limit, datejoined){
+        let result  = this.users
+
+        if(limit){
+            result = result.slice(0,limit) 
+        }
+
+        if(datejoined){
+            //the value in the registerDate in the array needs to be converted to a date datatype for the comparison to work
+            result = result.filter(user => new Date(user.registerDate) >= datejoined)
+
+        }
+        
+        return result
+    }
+
+    //getting a single user
+    async findOne(id: string){
+        return this.users.find((user) => user.id === id)
+    }
+
+    //updating the status value
     async updateOne(id: string, updateStatusDto: UpdateStatus){
         const user = this.users.find((user)=> user.id === id)
 
@@ -37,6 +53,7 @@ export class UserService {
         
     }
 
+    //deleting a user
     async deleteOne(id: string){
        this.users =  this.users.filter((user) => user.id !== id)
        return {message: 'User deleted successfully'}
