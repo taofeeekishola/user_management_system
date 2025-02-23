@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './entity/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { randomUUID } from 'crypto';
 import { UpdateStatus } from './dto/update-status.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -28,7 +27,7 @@ export class UserService {
 
         //creating an object and assigning it
         if (datejoined){
-            whereCondition.datejoined >= datejoined;
+            whereCondition.datejoined = MoreThanOrEqual(datejoined);
         }
 
         const [users, total] = await this.usersRepository.findAndCount({
