@@ -27,7 +27,7 @@ export class UserService {
 
         //creating an object and assigning it
         if (datejoined){
-            whereCondition.datejoined = MoreThanOrEqual(datejoined);
+            whereCondition.registerDate = MoreThanOrEqual(new Date(datejoined));
         }
 
         const [users, total] = await this.usersRepository.findAndCount({
