@@ -12,8 +12,7 @@ export class UserService {
         @InjectRepository(User)
         private readonly usersRepository:Repository<User>
     ){}
-    
-    private users: User[] = [];
+
 
     //creating a user
     async createUser(createUserDto: CreateUserDto){
