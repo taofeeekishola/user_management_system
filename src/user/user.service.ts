@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './entity/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { randomUUID } from 'crypto';
@@ -17,52 +17,65 @@ export class UserService {
 
     //creating a user
     async createUser(createUserDto: CreateUserDto){
-        const newUser = {...createUserDto, id: randomUUID()}
-        this.users.push(newUser);
-        
+        const user = this.usersRepository.create(createUserDto)
 
-        return newUser;
+        return await this.usersRepository.save(user)
     }
 
     //getting all the users
-    async findAll(limit, datejoined){
-        let result  = this.users
+    async findAll(limit, page, datejoined){
+        //inittialising an empty object
+        const whereCondition: any = {};
 
-        if(limit){
-            result = result.slice(0,limit) 
+        //creating an object and assigning it
+        if (datejoined){
+            whereCondition.datejoined >= datejoined;
         }
 
-        if(datejoined){
-            //the value in the registerDate in the array needs to be converted to a date datatype for the comparison to work
-            result = result.filter(user => new Date(user.registerDate) >= datejoined)
+        const [users, total] = await this.usersRepository.findAndCount({
+            where: whereCondition,
+            take: limit,
+            skip: (page -1) * limit,
+            order:{registerDate: "DESC"}
+        });
 
+        return {
+            data: users,
+            total, 
+            currentPage: page,
+            totalPages: Math.ceil(total/limit)
         }
         
-        return result
     }
 
     //getting a single user
     async findOne(id: string){
-        return this.users.find((user) => user.id === id)
+        return await this.usersRepository.findOne({where :{id}});
     }
 
     //updating the status value
     async updateOne(id: string, updateStatusDto: UpdateStatus){
-        const user = this.users.find((user)=> user.id === id)
+        const user = await this.usersRepository.findOne({where : {id}});
 
-        if (!user) {
-            throw new Error('User not found');
+        if(!user){
+            throw new NotFoundException
         }
 
-        user.status = updateStatusDto.status;
-
-        return user
-        
+        //this uses the value in updateStatusDto to replace the equivalent in user
+        Object.assign(user, updateStatusDto)
+        return await this.usersRepository.save(user);
     }
 
     //deleting a user
     async deleteOne(id: string){
-       this.users =  this.users.filter((user) => user.id !== id)
+       const user = await this.findOne(id)
+
+       if(!user){
+            throw new NotFoundException
+       }
+
+       await this.usersRepository.remove(user)
+
        return {message: 'User deleted successfully'}
     }
 }
