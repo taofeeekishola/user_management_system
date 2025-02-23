@@ -3,9 +3,16 @@ import { User } from './entity/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { randomUUID } from 'crypto';
 import { UpdateStatus } from './dto/update-status.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
+    constructor(
+        @InjectRepository(User)
+        private readonly usersRepository:Repository<User>
+    ){}
+    
     private users: User[] = [];
 
     //creating a user
